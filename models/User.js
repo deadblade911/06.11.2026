@@ -1,4 +1,3 @@
-// Модель пользователя: таблица Users в базе данных
 const { DataTypes } = require('sequelize');
 const sequelize = require('../db');
 
@@ -19,7 +18,6 @@ const User = sequelize.define('User', {
     allowNull: false,
     unique: true,
   },
-  // Здесь хранится хеш пароля, а не сам пароль
   password: {
     type: DataTypes.STRING,
     allowNull: false,

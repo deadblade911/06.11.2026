@@ -1,5 +1,3 @@
-// Логика страницы: вкладки, маска телефона, проверка полей и отправка форм на сервер
-
 const API_URL = '/api';
 
 const resultBox = document.getElementById('result');
@@ -9,7 +7,6 @@ const registerForm = document.getElementById('register-form');
 const loginForm = document.getElementById('login-form');
 const phoneInput = document.getElementById('reg-phone');
 
-// --- Вкладки ---
 function switchTab(selectedTab) {
   const isRegisterSelected = selectedTab === registerTab;
 
@@ -19,19 +16,13 @@ function switchTab(selectedTab) {
   loginForm.hidden = isRegisterSelected;
 }
 
-// --- Телефон ---
 function onlyDigits(text) {
   return text.replace(/\D/g, '');
 }
 
-// Приводит ввод к виду +7 (XXX) XXX-XX-XX
-// Ограничение: номер из 10 цифр без кода страны, начинающийся с 7 или 8,
-// теряет первую цифру, и поле показывает ошибку
 function maskPhone(rawValue) {
-  // Регулярка отрезает код страны в начале строки: +7, 7 или 8
   const withoutCountryCode = rawValue.trim().replace(/^\+?[78]?/, '');
   const digits = onlyDigits(withoutCountryCode).slice(0, 10);
-  // Введён только код страны: показываем начало маски, чтобы следующая цифра не считалась кодом
   if (!digits) return /^\+?[78]$/.test(rawValue) ? '+7 (' : '';
 
   let masked = '+7 (' + digits.slice(0, 3);
@@ -41,20 +32,16 @@ function maskPhone(rawValue) {
   return masked;
 }
 
-// Значение поля всегда в маске, поэтому достаточно '+' и цифр
 function normalizePhone(maskedPhone) {
   return '+' + onlyDigits(maskedPhone);
 }
 
 function validatePhone(phone) {
   if (!phone) return 'Введите телефон';
-  // 11 цифр: код страны 7 и 10 цифр номера
   if (onlyDigits(phone).length !== 11) return 'Введите номер полностью';
   return '';
 }
 
-// Присваивание input.value переносит каретку в конец, поэтому при правке в середине номера
-// возвращаем её к той же цифре: считаем цифры слева от каретки и находим это место в маске
 function restoreCaret(rawValue, maskedValue, caretPosition) {
   if (caretPosition === rawValue.length) return;
 
@@ -77,11 +64,8 @@ function handlePhoneInput() {
   setFieldError('reg-phone', validatePhone(maskedValue));
 }
 
-// --- Проверка полей ---
 function validateEmail(email) {
   if (!email) return 'Введите email';
-  // Формат имя@домен.зона. Строку без @ браузер не отправит сам из-за type="email",
-  // а вариант без точки, например a@b, пропустит, и его отсекает эта проверка
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return 'Некорректный email';
   return '';
 }
@@ -91,19 +75,16 @@ function validatePassword(password) {
   return '';
 }
 
-// Пустое сообщение убирает ошибку с поля
 function setFieldError(fieldId, message) {
   document.getElementById(fieldId + '-err').textContent = message;
   document.getElementById(fieldId).classList.toggle('invalid', Boolean(message));
 }
 
-// --- Отправка форм ---
 function showResult(text, isOk) {
   resultBox.textContent = text;
   resultBox.className = isOk ? 'result ok' : 'result error';
 }
 
-// Отправляет POST с JSON. Если сервер ответил ошибкой, бросает исключение с её текстом
 async function postJson(path, body) {
   const response = await fetch(API_URL + path, {
     method: 'POST',
@@ -115,7 +96,6 @@ async function postJson(path, body) {
   try {
     data = await response.json();
   } catch {
-    // В ответе не JSON: data остаётся null
   }
 
   if (!response.ok) {
@@ -124,14 +104,11 @@ async function postJson(path, body) {
   return data;
 }
 
-// Общая отправка для обеих форм: кнопка заблокирована на время запроса,
-// при успехе сохраняем токен и очищаем форму
 async function sendForm(form, path, body, successText) {
   const submitButton = form.querySelector('button[type="submit"]');
   submitButton.disabled = true;
   try {
     const data = await postJson(path, body);
-    // Токен для защищённых запросов (GET /api/me); сама страница таких запросов не делает
     localStorage.setItem('token', data.token);
     showResult(successText, true);
     form.reset();
@@ -168,8 +145,6 @@ async function handleLoginSubmit(event) {
   const email = document.getElementById('log-email').value.trim();
   const password = document.getElementById('log-password').value;
 
-  // Здесь проверяем только заполненность: формат email проверяет браузер (type="email"),
-  // а верность данных проверяет сервер
   const emailError = email ? '' : 'Введите email';
   const passwordError = password ? '' : 'Введите пароль';
 
@@ -180,11 +155,9 @@ async function handleLoginSubmit(event) {
   await sendForm(loginForm, '/auth/login', { email, password }, 'вы успешно авторизованы');
 }
 
-// --- Подключение обработчиков ---
 registerTab.addEventListener('click', () => switchTab(registerTab));
 loginTab.addEventListener('click', () => switchTab(loginTab));
 phoneInput.addEventListener('input', handlePhoneInput);
 registerForm.addEventListener('submit', handleRegisterSubmit);
 loginForm.addEventListener('submit', handleLoginSubmit);
-// form.reset() очищает поля, но не сообщение об ошибке под телефоном
 registerForm.addEventListener('reset', () => setFieldError('reg-phone', ''));

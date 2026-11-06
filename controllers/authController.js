@@ -1,13 +1,10 @@
-// Обработчики регистрации и входа пользователя
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 const { JWT_SECRET, JWT_EXPIRES_IN } = require('../config');
 
-// Сложность хеширования пароля в bcrypt
 const SALT_ROUNDS = 10;
 
-// Создаёт токен, внутри которого записаны id и email пользователя
 function createToken(user) {
   return jwt.sign(
     { id: user.id, email: user.email },
@@ -16,7 +13,6 @@ function createToken(user) {
   );
 }
 
-// Данные пользователя для ответа клиенту: без хеша пароля
 function toPublicUser(user) {
   return { id: user.id, email: user.email, phone: user.phone };
 }
@@ -35,7 +31,6 @@ async function register(req, res) {
 
     return res.status(201).json({ token, user: toPublicUser(user) });
   } catch (err) {
-    // Ошибки Sequelize: данные не прошли проверку модели или email/телефон уже есть в базе
     if (err.name === 'SequelizeValidationError') {
       return res.status(400).json({ message: err.errors[0].message });
     }
@@ -55,13 +50,11 @@ async function login(req, res) {
       return res.status(400).json({ message: 'email и password обязательны' });
     }
 
-    // Ответ при ошибке один и тот же, чтобы нельзя было узнать, зарегистрирован ли email
     const user = await User.findOne({ where: { email } });
     if (!user) {
       return res.status(401).json({ message: 'неверный email или пароль' });
     }
 
-    // В user.password лежит хеш: bcrypt.compare сверяет с ним введённый пароль
     const isPasswordCorrect = await bcrypt.compare(password, user.password);
     if (!isPasswordCorrect) {
       return res.status(401).json({ message: 'неверный email или пароль' });

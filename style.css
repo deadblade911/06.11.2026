@@ -1,0 +1,25 @@
+/* Минимальные стили страницы: отступы, активная вкладка, цвета ошибок и результата */
+
+.tabs, .field, .result {
+  margin: 8px 0;
+}
+
+label {
+  display: block;
+}
+
+.tabs button.active {
+  font-weight: bold;
+}
+
+input.invalid {
+  outline: 1px solid red;
+}
+
+.error {
+  color: red;
+}
+
+.result.ok {
+  color: green;
+}

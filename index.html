@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<!-- Страница регистрации и входа -->
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Регистрация и вход</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="tabs">
+    <button id="tab-register" class="active" type="button">Регистрация</button>
+    <button id="tab-login" type="button">Вход</button>
+  </div>
+
+  <form id="register-form">
+    <div class="field">
+      <label for="reg-email">Email</label>
+      <input id="reg-email" type="email" autocomplete="email" />
+      <div id="reg-email-err" class="error"></div>
+    </div>
+    <div class="field">
+      <label for="reg-phone">Телефон</label>
+      <input id="reg-phone" type="tel" placeholder="+7 (999) 123-45-67" />
+      <div id="reg-phone-err" class="error"></div>
+    </div>
+    <div class="field">
+      <label for="reg-password">Пароль</label>
+      <input id="reg-password" type="password" autocomplete="new-password" />
+      <div id="reg-password-err" class="error"></div>
+    </div>
+    <button id="reg-submit" type="submit">Зарегистрироваться</button>
+  </form>
+
+  <form id="login-form" hidden>
+    <div class="field">
+      <label for="log-email">Email</label>
+      <input id="log-email" type="email" autocomplete="email" />
+      <div id="log-email-err" class="error"></div>
+    </div>
+    <div class="field">
+      <label for="log-password">Пароль</label>
+      <input id="log-password" type="password" autocomplete="current-password" />
+      <div id="log-password-err" class="error"></div>
+    </div>
+    <button id="log-submit" type="submit">Войти</button>
+  </form>
+
+  <div id="result" class="result"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
